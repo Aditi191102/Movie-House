@@ -1,18 +1,42 @@
-import React from "react";
+import React, { useRef } from "react";
 import Header from "./Header";
 //import { Link } from 'react-router-dom'
 import { useState } from "react";
+import { validateEmailDetails, validatePasswordDetails } from "../utils/Validation";
 
 const Login = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
+  // const [emailErr,setEmailErr] = useState(null);
+  // const [passErr,setPassErr] = useState(null);
+
+  const [err,setErr] = useState({
+    emailInfo:null,
+    passwordInfo:null
+  })
+
+  const email = useRef();
+  const password = useRef();
 
   function formHandler() {
     isLoggedIn ? setIsLoggedIn(false) : setIsLoggedIn(true);
   }
 
-  function changeHandler(e){
-   console.log(e.target.value);
-  }
+  function clickHandler(){
+    const mailInfo = validateEmailDetails(email.current.value);
+
+    const passInfo = validatePasswordDetails(password.current.value);
+
+    // console.log(mailInfo);
+    // console.log(passInfo);
+    // setEmailErr(emailInfo);
+    // setPassErr(passwordInfo);
+    
+    setErr({ 
+      emailInfo:mailInfo,
+      passwordInfo:passInfo
+    });
+    
+  } 
   
   return (
     <div>
@@ -57,25 +81,28 @@ const Login = () => {
             id="email"
             type="text"
             placeholder="Enter Your Email"
+            ref={email}
             className="p-4 my-4 w-full bg-gray-900 hover:border border-white hover:bg-black 
-            rounded-md apperance-none leading-tight focus:outline-none"
-            onChange={changeHandler}
+            rounded-md apperance-none leading-tight focus:outline-none"    
           />
+          <div className="text-red-600">{err.emailInfo}</div> 
 
           <label htmlFor="password">Password</label>
           <input
             id="password"
             type="password"
             placeholder="Enter Your Password"
-            onChange={changeHandler}
+            ref={password}
             className="p-4 my-4 bg-gray-900 w-full text-white hover:border border-white
            hover:bg-black rounded-md apperance-none leading-tight focus:outline-none"
           />
+          <div className="text-red-600">{err.passwordInfo}</div> 
         </div>
 
         <button
           className="font-bold  text-xl bg-gradient-to-tl from-red-600 to-yellow-400 p-2 my-2 
           hover:from-yellow-400 hover:to-red-600 ... w-full rounded-md"
+          onClick={clickHandler}
         >
           Submit
         </button>
