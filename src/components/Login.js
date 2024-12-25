@@ -14,8 +14,8 @@ const Login = () => {
     passwordInfo:null
   })
 
-  const email = useRef();
-  const password = useRef();
+  const email = useRef(null);
+  const password = useRef(null);
 
   function formHandler() {
     isLoggedIn ? setIsLoggedIn(false) : setIsLoggedIn(true);
@@ -23,16 +23,20 @@ const Login = () => {
 
   function clickHandler(){
     const mailInfo = validateEmailDetails(email.current.value);
-
     const passInfo = validatePasswordDetails(password.current.value);
 
-    // console.log(mailInfo);
-    // console.log(passInfo);
-    // setEmailErr(emailInfo);
-    // setPassErr(passwordInfo);
     
+    console.log(mailInfo);
+    console.log(passInfo);
+    // setEmailErr(emailInfo);
+    // setPassErr(passwordInfo); 
+    
+    
+
     setErr({ 
-      emailInfo:mailInfo,
+      ...err,
+      emailInfo:mailInfo,  // when the name of variable and keys are same 
+      // then we can directly use key name syntax(e.g. {emailInfo,passwordInfo})
       passwordInfo:passInfo
     });
     
