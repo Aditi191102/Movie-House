@@ -2,46 +2,106 @@ import React, { useRef } from "react";
 import Header from "./Header";
 //import { Link } from 'react-router-dom'
 import { useState } from "react";
-import { validateEmailDetails, validatePasswordDetails } from "../utils/Validation";
+import { auth } from "../utils/Firebase";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+
+import {
+  validateEmailDetails,
+  validatePasswordDetails,
+} from "../utils/Validation";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   // const [emailErr,setEmailErr] = useState(null);
   // const [passErr,setPassErr] = useState(null);
 
-  const [err,setErr] = useState({
-    emailInfo:null,
-    passwordInfo:null
-  })
+  const [err, setErr] = useState({
+    emailInfo: null,
+    passwordInfo: null,
+  });
 
   const email = useRef(null);
   const password = useRef(null);
+  const navigate = useNavigate();
 
   function formHandler() {
     isLoggedIn ? setIsLoggedIn(false) : setIsLoggedIn(true);
   }
 
-  function clickHandler(){
+  function clickHandler() {
     const mailInfo = validateEmailDetails(email.current.value);
     const passInfo = validatePasswordDetails(password.current.value);
-
-    
-    console.log(mailInfo);
-    console.log(passInfo);
-    // setEmailErr(emailInfo);
-    // setPassErr(passwordInfo); 
-    
-    
-
-    setErr({ 
+    setErr({
       ...err,
-      emailInfo:mailInfo,  // when the name of variable and keys are same 
+      emailInfo: mailInfo, // when the name of variable and keys are same
       // then we can directly use key name syntax(e.g. {emailInfo,passwordInfo})
-      passwordInfo:passInfo
+      passwordInfo: passInfo,
+      // errorCode, errorMessage
     });
-    
-  } 
-  
+    if (mailInfo || passInfo) return;
+
+    // console.log(mailInfo);
+    // console.log(passInfo);
+    // setEmailErr(emailInfo);
+    // setPassErr(passwordInfo);
+
+    if (!isLoggedIn) {
+      createUserWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value
+      )
+        .then((userCredential) => {
+          // Signed up
+          const user = userCredential.user;
+          console.log(user);
+          navigate("/browse");
+          // setErr({ }); do thappad marungi na 2 bj gye 1:18 hui hai
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+
+          console.log(errorCode + "-" + errorMessage);
+          // ..
+          setErr({
+            ...err,
+            emailInfo: errorCode, // when the name of variable and keys are same
+            // then we can directly use key name syntax(e.g. {emailInfo,passwordInfo})
+            passwordInfo: errorMessage,
+            // errorCode, errorMessage
+          });
+        });
+    } else {
+      signInWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value
+      )
+        .then((userCredential) => {
+          // Signed in
+          const user = userCredential.user;
+          console.group(user);
+          navigate("/browse");
+          // ...
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+
+          setErr({
+            ...err,
+            emailInfo: errorCode,
+            passwordInfo: errorMessage,
+          });
+        });
+    }
+  }
+
   return (
     <div>
       <Header />
@@ -52,7 +112,10 @@ const Login = () => {
           alt="bg-img"
         />
       </div>
-      <form onSubmit={(e)=>e.preventDefault()} className="absolute p-14 bg-black text-white w-3/12 mx-auto right-0 left-0 my-36 opacity-80 rounded-lg">
+      <form
+        onSubmit={(e) => e.preventDefault()}
+        className="absolute p-14 bg-black text-white w-3/12 mx-auto right-0 left-0 my-36 opacity-80 rounded-lg"
+      >
         <h2 className="text-2xl font-bold rounded-md">
           {isLoggedIn ? "Sign In" : "Sign Up"}
         </h2>
@@ -87,9 +150,9 @@ const Login = () => {
             placeholder="Enter Your Email"
             ref={email}
             className="p-4 my-4 w-full bg-gray-900 hover:border border-white hover:bg-black 
-            rounded-md apperance-none leading-tight focus:outline-none"    
+            rounded-md apperance-none leading-tight focus:outline-none"
           />
-          <div className="text-red-600">{err.emailInfo}</div> 
+          <div className="text-red-600">{err.emailInfo}</div>
 
           <label htmlFor="password">Password</label>
           <input
@@ -100,7 +163,7 @@ const Login = () => {
             className="p-4 my-4 bg-gray-900 w-full text-white hover:border border-white
            hover:bg-black rounded-md apperance-none leading-tight focus:outline-none"
           />
-          <div className="text-red-600">{err.passwordInfo}</div> 
+          <div className="text-red-600">{err.passwordInfo}</div>
         </div>
 
         <button
