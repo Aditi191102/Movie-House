@@ -6,7 +6,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import {useDispatch} from "react-redux";
 import {addUser, removeUser} from "../utils/userSlice"
-import {auth} from "../utils/Firebase";
+import {auth} from "../utils/firebase";
 
 const Main = () => {
 

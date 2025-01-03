@@ -2,22 +2,28 @@ import React, { useRef } from "react";
 import Header from "./Header";
 //import { Link } from 'react-router-dom'
 import { useState } from "react";
-import { auth } from "../utils/Firebase";
+import { auth } from "../utils/firebase";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  updateProfile,
 } from "firebase/auth";
 
 import {
   validateEmailDetails,
   validatePasswordDetails,
-} from "../utils/Validation";
+} from "../utils/validation";
+
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addUser } from "../utils/userSlice";
 
 const Login = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   // const [emailErr,setEmailErr] = useState(null);
   // const [passErr,setPassErr] = useState(null);
+
+  const dispatch = useDispatch();
 
   const [err, setErr] = useState({
     emailInfo: null,
@@ -26,6 +32,7 @@ const Login = () => {
 
   const email = useRef(null);
   const password = useRef(null);
+  const name = useRef(null);
   const navigate = useNavigate();
 
   function formHandler() {
@@ -59,8 +66,23 @@ const Login = () => {
           // Signed up
           const user = userCredential.user;
           console.log(user);
-          navigate("/browse");
-          // setErr({ }); do thappad marungi na 2 bj gye 1:18 hui hai
+          updateProfile(user, {
+            displayName: name.current.value
+          })
+            .then(() => {
+              // Profile updated!
+              // ...
+              const { uid, email, displayName } = auth.currentUser;
+              dispatch(
+                addUser({ uid: uid, email: email, displayName: displayName })
+              );
+              navigate("/browse");
+            })
+            .catch((error) => {
+              // An error occurred
+              // ...
+              setErr({ ...err, errorMEssage: error.message });
+            });
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -127,6 +149,7 @@ const Login = () => {
               <input
                 id="first-name"
                 type="text"
+                ref={name}
                 placeholder="First Name"
                 className="p-4 my-4 w-full bg-gray-900 hover:border border-white hover:bg-black 
               rounded-md apperance-none leading-tight focus:outline-none"
