@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
+import { PiEyesBold, PiEyesThin } from "react-icons/pi";
 import Header from "./Header";
-//import { Link } from 'react-router-dom'
 import { useState } from "react";
 import { auth } from "../utils/firebase";
 import {
@@ -14,9 +14,9 @@ import {
   validatePasswordDetails,
 } from "../utils/validation";
 
-import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice";
+import { background_Img, user_Icon } from "../utils/constants";
 
 const Login = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
@@ -24,7 +24,7 @@ const Login = () => {
   // const [passErr,setPassErr] = useState(null);
 
   const dispatch = useDispatch();
-
+  const [isPasswordVisible, setPasswordVisible] = useState(false);
   const [err, setErr] = useState({
     emailInfo: null,
     passwordInfo: null,
@@ -33,7 +33,11 @@ const Login = () => {
   const email = useRef(null);
   const password = useRef(null);
   const name = useRef(null);
-  const navigate = useNavigate();
+
+  function passwordHandler() {
+    if (!isPasswordVisible) setPasswordVisible(true);
+    else setPasswordVisible(false);
+  }
 
   function formHandler() {
     isLoggedIn ? setIsLoggedIn(false) : setIsLoggedIn(true);
@@ -65,18 +69,21 @@ const Login = () => {
         .then((userCredential) => {
           // Signed up
           const user = userCredential.user;
-          console.log(user);
           updateProfile(user, {
-            displayName: name.current.value
+            displayName: name.current.value,
+            photoURL: user_Icon,
           })
             .then(() => {
               // Profile updated!
-              // ...
-              const { uid, email, displayName } = auth.currentUser;
+              const { uid, email, displayName, photoURL } = auth.currentUser;
               dispatch(
-                addUser({ uid: uid, email: email, displayName: displayName })
+                addUser({
+                  uid: uid,
+                  email: email,
+                  displayName: displayName,
+                  photoURL: photoURL,
+                })
               );
-              navigate("/browse");
             })
             .catch((error) => {
               // An error occurred
@@ -88,13 +95,13 @@ const Login = () => {
           const errorCode = error.code;
           const errorMessage = error.message;
 
-          console.log(errorCode + "-" + errorMessage);
+          console.log(error);
           // ..
           setErr({
             ...err,
             emailInfo: errorCode, // when the name of variable and keys are same
-            // then we can directly use key name syntax(e.g. {emailInfo,passwordInfo})
-            passwordInfo: errorMessage,
+            passwordInfo: errorMessage, // then we can directly use key name syntax(e.g. {emailInfo,passwordInfo})
+
             // errorCode, errorMessage
           });
         });
@@ -107,9 +114,7 @@ const Login = () => {
         .then((userCredential) => {
           // Signed in
           const user = userCredential.user;
-          console.group(user);
-          navigate("/browse");
-          // ...
+          console.log(user);
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -129,10 +134,7 @@ const Login = () => {
       <Header />
 
       <div className="absolute">
-        <img
-          src="https://assets.nflxext.com/ffe/siteui/vlv3/150c4b42-11f6-4576-a00f-c631308b1e43/web/IN-en-20241216-TRIFECTA-perspective_915a9055-68ad-4e81-b19a-442f1cd134dc_large.jpg"
-          alt="bg-img"
-        />
+        <img src={background_Img} alt="background_Img" />
       </div>
       <form
         onSubmit={(e) => e.preventDefault()}
@@ -180,12 +182,24 @@ const Login = () => {
           <label htmlFor="password">Password</label>
           <input
             id="password"
-            type="password"
+            type={isPasswordVisible ? "text" : "password"}
             placeholder="Enter Your Password"
             ref={password}
             className="p-4 my-4 bg-gray-900 w-full text-white hover:border border-white
            hover:bg-black rounded-md apperance-none leading-tight focus:outline-none"
           />
+          {isPasswordVisible ? (
+            <PiEyesBold
+              className="absolute left-72 bottom-48 transform -translate-y-1/2 cursor-pointer text-white text-sm"
+              onClick={passwordHandler}
+            />
+          ) : (
+            <PiEyesThin
+              className="absolute left-72 bottom-48 transform -translate-y-1/2 cursor-pointer text-zinc-400 text-sm"
+              onClick={passwordHandler}
+            />
+          )}
+
           <div className="text-red-600">{err.passwordInfo}</div>
         </div>
 
