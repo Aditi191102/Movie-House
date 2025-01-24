@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import { PiEyesBold, PiEyesThin } from "react-icons/pi";
 import Header from "./Header";
 import { useState } from "react";
-import { auth } from "../utils/firebase";
+import { auth } from "../utils/firebase.js";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
