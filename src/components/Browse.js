@@ -11,7 +11,7 @@ const Browse = () => {
   const nowPlayingMovies = async () => {
     const data = await fetch('https://api.themoviedb.org/3/movie/now_playing?page=1', API_OPTIONS)
     const movieData = await data.json();
-    // console.log(movieData);
+   
     dispatch(addNowPlayingMovies(movieData.results));
   }
 
