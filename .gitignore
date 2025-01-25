@@ -23,5 +23,5 @@ yarn-debug.log*
 yarn-error.log*
 
 .firebase/
-
+.github/
 movie-house-efcc9-firebase-adminsdk-ww68j-d2f176af96
