@@ -59,7 +59,7 @@ const Header = () => {
             src={user?.photoURL}
             className="w-12 h-12"
           />
-          <p>Welcome {user.displayName}</p>
+          <p className="text-white">Welcome {user.displayName}</p>
           </div>
 
           <button
